@@ -1,23 +1,24 @@
 import { Controller, Get } from '@nestjs/common';
-import { ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
-
-export class HealthResponse {
-  status: 'ok';
-  uptimeSeconds: number;
-  timestamp: string;
-}
+import { ApiOperation, ApiTags } from '@nestjs/swagger';
+import {
+  HealthCheck,
+  HealthCheckService,
+  type HealthCheckResult,
+  TypeOrmHealthIndicator,
+} from '@nestjs/terminus';
 
 @ApiTags('health')
 @Controller('health')
 export class HealthController {
+  constructor(
+    private readonly health: HealthCheckService,
+    private readonly database: TypeOrmHealthIndicator,
+  ) {}
+
   @Get()
-  @ApiOperation({ summary: 'Liveness probe for the API process' })
-  @ApiOkResponse({ type: HealthResponse })
-  check(): HealthResponse {
-    return {
-      status: 'ok',
-      uptimeSeconds: Math.round(process.uptime()),
-      timestamp: new Date().toISOString(),
-    };
+  @HealthCheck()
+  @ApiOperation({ summary: 'Readiness probe: process up and database reachable' })
+  check(): Promise<HealthCheckResult> {
+    return this.health.check([() => this.database.pingCheck('database', { timeout: 3000 })]);
   }
 }

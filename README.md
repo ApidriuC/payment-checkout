@@ -26,6 +26,11 @@ payment-checkout/
 └── package.json  → npm workspaces
 ```
 
+## Modelo de datos
+
+El diagrama entidad-relación y las decisiones de diseño (reserva de stock, manejo de datos
+sensibles de tarjeta, bitácora de transacciones) están en [docs/data-model.md](docs/data-model.md).
+
 ## Requisitos
 
 - Node.js >= 20
