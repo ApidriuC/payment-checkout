@@ -11,6 +11,7 @@ export interface ChargeRequest {
   /** Single-use token produced by the client; the raw card never reaches this service. */
   cardToken: string;
   acceptanceToken: string;
+  personalDataAuthToken?: string | null;
   installments: number;
 }
 
@@ -20,10 +21,31 @@ export interface ChargeResult {
   failureReason?: string | null;
 }
 
+export interface CheckoutConfig {
+  publicKey: string;
+  tokenizationUrl: string;
+  acceptanceToken: string;
+  personalDataAuthToken: string | null;
+  termsUrl: string | null;
+}
+
+export interface GatewayEvent {
+  event: string;
+  data: Record<string, unknown>;
+  timestamp: number;
+  signature: {
+    properties: string[];
+    checksum: string;
+  };
+}
+
 export interface PaymentGateway {
+  /** Public data the SPA needs to tokenize a card without hardcoding gateway details. */
+  getCheckoutConfig(): AsyncResult<CheckoutConfig, DomainError>;
+
   charge(request: ChargeRequest): AsyncResult<ChargeResult, DomainError>;
 
-  findByReference(reference: string): AsyncResult<ChargeResult | null, DomainError>;
+  findCharge(gatewayTransactionId: string): AsyncResult<ChargeResult, DomainError>;
 
-  verifyEventSignature(payload: Record<string, unknown>, signature: string, timestamp: string): boolean;
+  verifyEventSignature(event: GatewayEvent): boolean;
 }

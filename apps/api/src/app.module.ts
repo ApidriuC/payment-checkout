@@ -4,6 +4,8 @@ import { TerminusModule } from '@nestjs/terminus';
 
 import { CatalogModule } from '@/contexts/catalog/catalog.module';
 import { CustomersModule } from '@/contexts/customers/customers.module';
+import { DeliveriesModule } from '@/contexts/deliveries/deliveries.module';
+import { PaymentsModule } from '@/contexts/payments/payments.module';
 import { configurations } from '@/shared/infrastructure/config/configuration';
 import { validateEnvironment } from '@/shared/infrastructure/config/env.validation';
 import { HealthController } from '@/shared/infrastructure/http/health.controller';
@@ -24,6 +26,8 @@ import { SharedModule } from '@/shared/shared.module';
     TerminusModule,
     CatalogModule,
     CustomersModule,
+    DeliveriesModule,
+    PaymentsModule,
   ],
   controllers: [HealthController],
 })

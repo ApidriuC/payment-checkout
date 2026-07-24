@@ -7,11 +7,16 @@ import { type TransactionStatus } from '../transaction-status';
 
 export const TRANSACTION_REPOSITORY = Symbol('TransactionRepository');
 
+export enum TransactionEventSource {
+  API = 'API',
+  GATEWAY_WEBHOOK = 'GATEWAY_WEBHOOK',
+}
+
 export interface TransactionEventRecord {
   transactionId: string;
   fromStatus: TransactionStatus;
   toStatus: TransactionStatus;
-  source: 'API' | 'GATEWAY_WEBHOOK';
+  source: TransactionEventSource;
   payload?: Record<string, unknown> | null;
 }
 

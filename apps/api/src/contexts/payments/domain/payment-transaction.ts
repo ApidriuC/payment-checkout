@@ -3,7 +3,7 @@ import { Money } from '@/shared/domain/money';
 import { andThen, err, map, ok, type Result } from '@/shared/domain/result';
 
 import { AmountBreakdown } from './amount-breakdown';
-import { CardSummary } from './card-summary';
+import { type CardBrand, CardSummary } from './card-summary';
 import { TransactionAlreadyFinalizedError } from './errors';
 import { isFinal, TransactionStatus } from './transaction-status';
 
@@ -27,7 +27,7 @@ export interface TransactionSnapshot {
   gatewayTransactionId: string | null;
   gatewayStatus: string | null;
   failureReason: string | null;
-  cardBrand: string | null;
+  cardBrand: CardBrand | null;
   cardLastFour: string | null;
   createdAt: Date;
   completedAt: Date | null;

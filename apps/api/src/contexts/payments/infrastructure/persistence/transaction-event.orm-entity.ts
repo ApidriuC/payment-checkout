@@ -8,12 +8,10 @@ import {
   PrimaryGeneratedColumn,
 } from 'typeorm';
 
-import { TransactionOrmEntity, TransactionStatus } from './transaction.orm-entity';
+import { TransactionEventSource } from '@/contexts/payments/domain/ports/transaction.repository';
+import { type TransactionStatus } from '@/contexts/payments/domain/transaction-status';
 
-export enum TransactionEventSource {
-  API = 'API',
-  GATEWAY_WEBHOOK = 'GATEWAY_WEBHOOK',
-}
+import { TransactionOrmEntity } from './transaction.orm-entity';
 
 @Entity('transaction_events')
 export class TransactionEventOrmEntity {

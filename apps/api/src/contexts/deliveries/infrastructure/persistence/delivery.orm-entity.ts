@@ -10,16 +10,9 @@ import {
 } from 'typeorm';
 
 import { CustomerOrmEntity } from '@/contexts/customers/infrastructure/persistence/customer.orm-entity';
+import { DeliveryStatus } from '@/contexts/deliveries/domain/delivery';
 import { TransactionOrmEntity } from '@/contexts/payments/infrastructure/persistence/transaction.orm-entity';
 import { bigintTransformer } from '@/shared/infrastructure/persistence/typeorm/transformers/bigint.transformer';
-
-export enum DeliveryStatus {
-  PENDING = 'PENDING',
-  ASSIGNED = 'ASSIGNED',
-  SHIPPED = 'SHIPPED',
-  DELIVERED = 'DELIVERED',
-  CANCELLED = 'CANCELLED',
-}
 
 @Entity('deliveries')
 export class DeliveryOrmEntity {

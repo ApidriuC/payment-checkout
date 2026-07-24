@@ -11,21 +11,9 @@ import {
 
 import { ProductOrmEntity } from '@/contexts/catalog/infrastructure/persistence/product.orm-entity';
 import { CustomerOrmEntity } from '@/contexts/customers/infrastructure/persistence/customer.orm-entity';
+import { CardBrand } from '@/contexts/payments/domain/card-summary';
+import { TransactionStatus } from '@/contexts/payments/domain/transaction-status';
 import { bigintTransformer } from '@/shared/infrastructure/persistence/typeorm/transformers/bigint.transformer';
-
-export enum TransactionStatus {
-  PENDING = 'PENDING',
-  APPROVED = 'APPROVED',
-  DECLINED = 'DECLINED',
-  VOIDED = 'VOIDED',
-  ERROR = 'ERROR',
-}
-
-export enum CardBrand {
-  VISA = 'VISA',
-  MASTERCARD = 'MASTERCARD',
-  UNKNOWN = 'UNKNOWN',
-}
 
 @Entity('transactions')
 export class TransactionOrmEntity {
