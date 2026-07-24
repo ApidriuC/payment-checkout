@@ -13,7 +13,7 @@
     "test": "jest",
     "test:watch": "jest --watch",
     "test:cov": "jest --coverage",
-    "typeorm": "typeorm-ts-node-commonjs -d src/shared/infrastructure/persistence/typeorm/data-source.ts",
+    "typeorm": "node scripts/typeorm-cli.cjs -d src/shared/infrastructure/persistence/typeorm/data-source.ts",
     "migration:run": "npm run typeorm -- migration:run",
     "migration:revert": "npm run typeorm -- migration:revert",
     "seed": "ts-node -r tsconfig-paths/register src/shared/infrastructure/persistence/typeorm/seeds/run-seed.ts"

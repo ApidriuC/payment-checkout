@@ -16,7 +16,7 @@ import { ormEntities } from './typeorm/data-source';
         return {
           type: 'postgres' as const,
           url: database.url,
-          ssl: database.ssl ? { rejectUnauthorized: false } : false,
+          ssl: database.ssl ? { rejectUnauthorized: true } : false,
           entities: ormEntities,
           synchronize: false,
           logging: database.logging,

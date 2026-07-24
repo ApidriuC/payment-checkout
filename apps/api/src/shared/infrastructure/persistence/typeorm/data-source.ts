@@ -24,7 +24,7 @@ export const ormEntities = [
 export const buildDataSourceOptions = (env = process.env): DataSourceOptions => ({
   type: 'postgres',
   url: env.DATABASE_URL,
-  ssl: env.DATABASE_SSL === 'true' ? { rejectUnauthorized: false } : false,
+  ssl: env.DATABASE_SSL === 'true' ? { rejectUnauthorized: true } : false,
   entities: ormEntities,
   migrations: [`${__dirname}/migrations/*.{ts,js}`],
   migrationsTableName: 'schema_migrations',
