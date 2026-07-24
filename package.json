@@ -1,0 +1,36 @@
+{
+  "name": "payment-checkout",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Fullstack payment checkout: React SPA + NestJS hexagonal API integrated with a payment gateway.",
+  "license": "MIT",
+  "engines": {
+    "node": ">=20"
+  },
+  "workspaces": [
+    "apps/api",
+    "apps/web"
+  ],
+  "scripts": {
+    "dev:api": "npm run start:dev --workspace @checkout/api",
+    "dev:web": "npm run dev --workspace @checkout/web",
+    "build": "npm run build --workspaces --if-present",
+    "build:api": "npm run build --workspace @checkout/api",
+    "build:web": "npm run build --workspace @checkout/web",
+    "test": "npm run test --workspaces --if-present",
+    "test:cov": "npm run test:cov --workspaces --if-present",
+    "lint": "npm run lint --workspaces --if-present",
+    "format": "prettier --write \"apps/**/src/**/*.{ts,tsx,js,json,css}\"",
+    "seed": "npm run seed --workspace @checkout/api"
+  },
+  "devDependencies": {
+    "prettier": "^3.3.3",
+    "typescript": "5.9.3"
+  },
+  "overrides": {
+    "typescript": "5.9.3",
+    "@nestjs/swagger": {
+      "js-yaml": "^5.2.2"
+    }
+  }
+}
