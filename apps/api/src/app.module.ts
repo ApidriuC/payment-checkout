@@ -3,6 +3,7 @@ import { ConfigModule } from '@nestjs/config';
 import { TerminusModule } from '@nestjs/terminus';
 
 import { CatalogModule } from '@/contexts/catalog/catalog.module';
+import { CustomersModule } from '@/contexts/customers/customers.module';
 import { configurations } from '@/shared/infrastructure/config/configuration';
 import { validateEnvironment } from '@/shared/infrastructure/config/env.validation';
 import { HealthController } from '@/shared/infrastructure/http/health.controller';
@@ -22,6 +23,7 @@ import { SharedModule } from '@/shared/shared.module';
     SharedModule,
     TerminusModule,
     CatalogModule,
+    CustomersModule,
   ],
   controllers: [HealthController],
 })

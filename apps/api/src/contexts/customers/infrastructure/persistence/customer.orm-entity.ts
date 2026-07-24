@@ -1,11 +1,6 @@
 import { Column, CreateDateColumn, Entity, PrimaryGeneratedColumn, UpdateDateColumn } from 'typeorm';
 
-export enum LegalIdType {
-  CC = 'CC',
-  CE = 'CE',
-  NIT = 'NIT',
-  PP = 'PP',
-}
+import { type LegalIdType } from '@/contexts/customers/domain/value-objects';
 
 @Entity('customers')
 export class CustomerOrmEntity {
