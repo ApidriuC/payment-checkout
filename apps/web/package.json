@@ -7,7 +7,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "tsc -b && vite build",
+    "build": "node scripts/copy-swagger-assets.mjs && tsc -b && vite build",
     "preview": "vite preview",
     "lint": "eslint \"src/**/*.{ts,tsx}\" --fix",
     "test": "jest",
@@ -34,6 +34,7 @@
     "identity-obj-proxy": "^3.0.0",
     "jest": "^30.4.2",
     "jest-environment-jsdom": "^30.4.1",
+    "swagger-ui-dist": "^5.32.11",
     "ts-jest": "^29.4.12",
     "typescript": "5.9.3",
     "vite": "^8.1.5"

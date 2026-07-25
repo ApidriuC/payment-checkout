@@ -179,7 +179,7 @@ export function CheckoutPage() {
               >
                 {[1, 3, 6, 12, 24].map((value) => (
                   <option key={value} value={value}>
-                    {value === 1 ? 'Una cuota' : `${value} cuotas`}
+                    {value === 1 ? `${value} cuota` : `${value} cuotas`}
                   </option>
                 ))}
               </select>

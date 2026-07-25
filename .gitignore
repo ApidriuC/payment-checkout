@@ -5,10 +5,19 @@ node_modules/
 
 # Builds
 dist/
+dist-lambda/
 build/
 *.tsbuildinfo
 .serverless/
 .aws-sam/
+
+# Terraform
+.terraform/
+.terraform.lock.hcl
+*.tfstate
+*.tfstate.*
+terraform.tfvars
+infra/.build/
 
 # Tests / coverage
 coverage/

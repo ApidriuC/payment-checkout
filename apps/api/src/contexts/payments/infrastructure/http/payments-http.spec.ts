@@ -1,3 +1,5 @@
+import { type ConfigService } from '@nestjs/config';
+
 import { SettleDeliveryUseCase } from '@/contexts/deliveries/application/settle-delivery.use-case';
 import { Delivery, DeliveryAddress } from '@/contexts/deliveries/domain/delivery';
 import { HandleGatewayEventUseCase } from '@/contexts/payments/application/handle-gateway-event.use-case';
@@ -28,8 +30,12 @@ const money = (cents: number): Money => {
 };
 
 describe('CheckoutConfigController', () => {
-  it('exposes only public gateway data', async () => {
-    const controller = new CheckoutConfigController(new FakePaymentGateway());
+  const configService = {
+    getOrThrow: () => ({ baseFeeCents: 500000, deliveryFeeCents: 1000000 }),
+  } as unknown as ConfigService;
+
+  it('exposes the public gateway data together with the order fees', async () => {
+    const controller = new CheckoutConfigController(new FakePaymentGateway(), configService);
 
     const response = await controller.getConfig();
 
@@ -39,7 +45,26 @@ describe('CheckoutConfigController', () => {
       acceptanceToken: 'acc_test',
       personalDataAuthToken: null,
       termsUrl: null,
+      baseFeeInCents: 500000,
+      deliveryFeeInCents: 1000000,
     });
+  });
+
+  it('never exposes the private key', async () => {
+    const controller = new CheckoutConfigController(new FakePaymentGateway(), configService);
+
+    const response = await controller.getConfig();
+
+    expect(JSON.stringify(response)).not.toMatch(/prv_/);
+  });
+
+  it('propagates a gateway failure as a 502', async () => {
+    const gateway = new FakePaymentGateway();
+    gateway.configFails = true;
+
+    const controller = new CheckoutConfigController(gateway, configService);
+
+    await expect(controller.getConfig()).rejects.toMatchObject({ status: 502 });
   });
 });
 

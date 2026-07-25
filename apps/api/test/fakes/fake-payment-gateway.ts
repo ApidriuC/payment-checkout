@@ -22,6 +22,7 @@ export class StaticReferenceGenerator implements ReferenceGenerator {
 export class FakePaymentGateway implements PaymentGateway {
   chargeResult: ChargeResult = { gatewayTransactionId: 'gw-1', gatewayStatus: 'APPROVED' };
   chargeFails = false;
+  configFails = false;
   findResult: ChargeResult = { gatewayTransactionId: 'gw-1', gatewayStatus: 'APPROVED' };
   findFails = false;
   signatureValid = true;
@@ -30,6 +31,10 @@ export class FakePaymentGateway implements PaymentGateway {
   readonly lookups: string[] = [];
 
   getCheckoutConfig(): AsyncResult<CheckoutConfig, DomainError> {
+    if (this.configFails) {
+      return Promise.resolve(err(new PaymentGatewayUnavailableError('ECONNRESET')));
+    }
+
     return Promise.resolve(
       ok({
         publicKey: 'pub_test',

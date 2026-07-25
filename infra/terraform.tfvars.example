@@ -1,0 +1,15 @@
+# Copia este archivo a terraform.tfvars y completa los valores.
+# terraform.tfvars está en .gitignore: contiene secretos y no debe subirse.
+
+aws_region = "us-east-1"
+
+database_url = "postgresql://usuario:password@host/base?sslmode=verify-full"
+
+payment_gateway_base_url      = "https://api-sandbox.example.dev/v1"
+payment_gateway_public_key    = "pub_test_reemplazar"
+payment_gateway_private_key   = "prv_test_reemplazar"
+payment_gateway_integrity_key = "integrity_reemplazar"
+payment_gateway_events_key    = "events_reemplazar"
+
+base_fee_cents     = 500000
+delivery_fee_cents = 1000000
