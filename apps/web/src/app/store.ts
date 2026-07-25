@@ -9,11 +9,11 @@ import {
   REGISTER,
   REHYDRATE,
 } from 'redux-persist';
-import storage from 'redux-persist/lib/storage';
-
 import { catalogReducer } from '@/features/catalog/catalog.slice';
 import { checkoutReducer } from '@/features/checkout/checkout.slice';
 import { paymentReducer } from '@/features/payment/payment.slice';
+
+import { createPersistStorage } from './storage';
 
 const rootReducer = combineReducers({
   catalog: catalogReducer,
@@ -26,7 +26,7 @@ const rootReducer = combineReducers({
 const persistConfig = {
   key: 'checkout',
   version: 1,
-  storage,
+  storage: createPersistStorage(),
   whitelist: ['checkout', 'payment'],
 };
 
