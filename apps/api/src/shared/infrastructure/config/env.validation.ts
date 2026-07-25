@@ -53,7 +53,7 @@ export class EnvironmentVariables {
   @Transform(toBoolean)
   DATABASE_LOGGING = false;
 
-  @IsUrl({ require_tld: false })
+  @IsUrl({ require_tld: false, require_protocol: true, protocols: ['http', 'https'] })
   PAYMENT_GATEWAY_BASE_URL: string;
 
   @IsString()
