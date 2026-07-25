@@ -3,6 +3,7 @@ import 'reflect-metadata';
 import serverlessExpress from '@codegenie/serverless-express';
 import { NestFactory } from '@nestjs/core';
 import { type Context, type Handler } from 'aws-lambda';
+import { type Express } from 'express';
 
 import { AppModule } from './app.module';
 import { configureApp, setupSwagger } from './bootstrap';
@@ -20,13 +21,13 @@ async function createHandler(): Promise<Handler> {
 
   await app.init();
 
-  return serverlessExpress({
-    app: app.getHttpAdapter().getInstance() as unknown,
-  }) as Handler;
+  const expressApp = app.getHttpAdapter().getInstance() as Express;
+
+  return serverlessExpress({ app: expressApp }) as Handler;
 }
 
 export const handler: Handler = async (event: unknown, context: Context, callback) => {
   cachedHandler ??= await createHandler();
 
-  return (await cachedHandler(event, context, callback)) as unknown;
+  return cachedHandler(event, context, callback) as unknown;
 };
