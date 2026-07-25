@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 220" role="img" aria-label="Teclado Nova 87">
+  <defs>
+    <linearGradient id="nk-body" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#475569"/>
+      <stop offset="1" stop-color="#1e293b"/>
+    </linearGradient>
+    <linearGradient id="nk-glow" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#818cf8"/>
+      <stop offset="1" stop-color="#38bdf8"/>
+    </linearGradient>
+  </defs>
+  <rect x="26" y="66" width="268" height="98" rx="14" fill="url(#nk-body)"/>
+  <rect x="26" y="150" width="268" height="14" rx="7" fill="url(#nk-glow)" opacity=".7"/>
+  <g fill="#0f172a" opacity=".85">
+    <rect x="42" y="80" width="20" height="18" rx="4"/><rect x="68" y="80" width="20" height="18" rx="4"/>
+    <rect x="94" y="80" width="20" height="18" rx="4"/><rect x="120" y="80" width="20" height="18" rx="4"/>
+    <rect x="146" y="80" width="20" height="18" rx="4"/><rect x="172" y="80" width="20" height="18" rx="4"/>
+    <rect x="198" y="80" width="20" height="18" rx="4"/><rect x="224" y="80" width="20" height="18" rx="4"/>
+    <rect x="250" y="80" width="28" height="18" rx="4"/>
+    <rect x="42" y="104" width="26" height="18" rx="4"/><rect x="74" y="104" width="20" height="18" rx="4"/>
+    <rect x="100" y="104" width="20" height="18" rx="4"/><rect x="126" y="104" width="20" height="18" rx="4"/>
+    <rect x="152" y="104" width="20" height="18" rx="4"/><rect x="178" y="104" width="20" height="18" rx="4"/>
+    <rect x="204" y="104" width="20" height="18" rx="4"/><rect x="230" y="104" width="48" height="18" rx="4"/>
+    <rect x="42" y="128" width="34" height="18" rx="4"/><rect x="82" y="128" width="112" height="18" rx="4"/>
+    <rect x="200" y="128" width="20" height="18" rx="4"/><rect x="226" y="128" width="52" height="18" rx="4"/>
+  </g>
+</svg>

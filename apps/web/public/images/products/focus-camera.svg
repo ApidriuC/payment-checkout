@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 220" role="img" aria-label="Cámara Focus 4K">
+  <defs>
+    <radialGradient id="fc-lens" cx="0.4" cy="0.35" r="0.75">
+      <stop offset="0" stop-color="#38bdf8"/>
+      <stop offset="0.5" stop-color="#4338ca"/>
+      <stop offset="1" stop-color="#020617"/>
+    </radialGradient>
+  </defs>
+  <rect x="72" y="52" width="176" height="102" rx="46" fill="#1e293b"/>
+  <circle cx="160" cy="103" r="38" fill="#0f172a"/>
+  <circle cx="160" cy="103" r="30" fill="url(#fc-lens)"/>
+  <circle cx="148" cy="92" r="8" fill="#e0f2fe" opacity=".85"/>
+  <circle cx="222" cy="76" r="5" fill="#22c55e"/>
+  <path d="M118 154h84v12a10 10 0 0 1-10 10h-64a10 10 0 0 1-10-10v-12Z" fill="#334155"/>
+  <rect x="104" y="176" width="112" height="10" rx="5" fill="#475569"/>
+</svg>

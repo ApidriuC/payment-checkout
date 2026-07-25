@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 220" role="img" aria-label="Mouse Drift Silent">
+  <defs>
+    <linearGradient id="dm-body" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#64748b"/>
+      <stop offset="1" stop-color="#1e293b"/>
+    </linearGradient>
+  </defs>
+  <path d="M160 32c38 0 62 30 62 74v26c0 34-28 56-62 56s-62-22-62-56v-26c0-44 24-74 62-74Z" fill="url(#dm-body)"/>
+  <path d="M160 32c-38 0-62 30-62 74h62V32Z" fill="#94a3b8" opacity=".35"/>
+  <rect x="155" y="34" width="10" height="72" rx="5" fill="#0f172a" opacity=".4"/>
+  <rect x="152" y="56" width="16" height="30" rx="8" fill="#818cf8"/>
+  <circle cx="160" cy="150" r="16" fill="#0f172a" opacity=".25"/>
+</svg>

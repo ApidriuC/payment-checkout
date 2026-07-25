@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 220" role="img" aria-label="Monitor Vista 27 pulgadas">
+  <defs>
+    <linearGradient id="vm-screen" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#0ea5e9"/>
+      <stop offset="0.55" stop-color="#4f46e5"/>
+      <stop offset="1" stop-color="#1e1b4b"/>
+    </linearGradient>
+  </defs>
+  <rect x="24" y="30" width="272" height="128" rx="10" fill="#0f172a"/>
+  <rect x="33" y="39" width="254" height="110" rx="5" fill="url(#vm-screen)"/>
+  <path d="M33 122c40-26 66 8 104-14s78 6 150-24v41H33Z" fill="#fff" opacity=".14"/>
+  <rect x="140" y="158" width="40" height="24" fill="#334155"/>
+  <rect x="102" y="180" width="116" height="12" rx="6" fill="#475569"/>
+</svg>
