@@ -1,4 +1,4 @@
-import { HttpStatus } from '@nestjs/common';
+import { HttpStatus, Logger } from '@nestjs/common';
 
 import { DomainError, DomainErrorKind, UnexpectedError } from '@/shared/domain/domain-error';
 import { err, ok } from '@/shared/domain/result';
@@ -88,22 +88,45 @@ describe('domain error mapper', () => {
 });
 
 describe('HealthController', () => {
-  it('delegates the readiness check to the database indicator', async () => {
-    const pingCheck = jest.fn().mockResolvedValue({ database: { status: 'up' } });
-    const check = jest.fn().mockImplementation(async (indicators: (() => Promise<unknown>)[]) => {
-      await Promise.all(indicators.map((indicator) => indicator()));
-      return { status: 'ok', info: { database: { status: 'up' } } };
-    });
+  const buildResponse = () => {
+    const status = jest.fn();
+    return { response: { status } as never, status };
+  };
 
-    const controller = new HealthController(
-      { check } as never,
-      { pingCheck } as never,
-    );
+  it('reports the database as up when the probe query succeeds', async () => {
+    const query = jest.fn().mockResolvedValue([{ '?column?': 1 }]);
+    const controller = new HealthController({ query } as never);
+    const { response, status } = buildResponse();
 
-    const result = await controller.check();
+    const result = await controller.check(response);
 
-    expect(pingCheck).toHaveBeenCalledWith('database', { timeout: 3000 });
+    expect(query).toHaveBeenCalledWith('SELECT 1');
     expect(result.status).toBe('ok');
+    expect(result.database).toBe('up');
+    expect(status).not.toHaveBeenCalled();
+  });
+
+  it('answers 503 when the database is unreachable', async () => {
+    jest.spyOn(Logger.prototype, 'error').mockImplementation(() => undefined);
+    const query = jest.fn().mockRejectedValue(new Error('connection refused'));
+    const controller = new HealthController({ query } as never);
+    const { response, status } = buildResponse();
+
+    const result = await controller.check(response);
+
+    expect(result.status).toBe('degraded');
+    expect(result.database).toBe('down');
+    expect(status).toHaveBeenCalledWith(503);
+  });
+
+  it('reports the process uptime', async () => {
+    const controller = new HealthController({ query: jest.fn().mockResolvedValue([]) } as never);
+    const { response } = buildResponse();
+
+    const result = await controller.check(response);
+
+    expect(result.uptimeSeconds).toBeGreaterThanOrEqual(0);
+    expect(result.timestamp).toMatch(/^\d{4}-\d{2}-\d{2}T/);
   });
 });
 
