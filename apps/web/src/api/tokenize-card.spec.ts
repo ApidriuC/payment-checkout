@@ -88,6 +88,55 @@ describe('tokenizeCard', () => {
     expect(mockedAxios.post).not.toHaveBeenCalled();
   });
 
+  it('surfaces the validation message the gateway returned', async () => {
+    const failure = new AxiosError('rejected');
+    failure.response = {
+      status: 422,
+      data: {
+        error: {
+          type: 'INPUT_VALIDATION_ERROR',
+          messages: {
+            number: ['El número de tarjeta usado no es aceptado en el ambiente de pruebas.'],
+          },
+        },
+      },
+      statusText: '',
+      headers: {},
+      config: { headers: {} },
+    } as never;
+    mockedAxios.post.mockRejectedValue(failure);
+
+    await expect(tokenizeCard(card, config)).rejects.toMatchObject({
+      code: 'INPUT_VALIDATION_ERROR',
+      message: 'El número de tarjeta usado no es aceptado en el ambiente de pruebas.',
+      statusCode: 422,
+    });
+  });
+
+  it('falls back to the reason when the gateway sends no field messages', async () => {
+    const failure = new AxiosError('rejected');
+    failure.response = {
+      status: 422,
+      data: { error: { type: 'CARD_ERROR', reason: 'La tarjeta está vencida.' } },
+      statusText: '',
+      headers: {},
+      config: { headers: {} },
+    } as never;
+    mockedAxios.post.mockRejectedValue(failure);
+
+    await expect(tokenizeCard(card, config)).rejects.toMatchObject({
+      message: 'La tarjeta está vencida.',
+    });
+  });
+
+  it('reports a network failure without inventing a card reason', async () => {
+    mockedAxios.post.mockRejectedValue(new AxiosError('Network Error'));
+
+    await expect(tokenizeCard(card, config)).rejects.toMatchObject({
+      code: 'NETWORK_ERROR',
+    });
+  });
+
   it('maps a gateway rejection into an ApiError', async () => {
     const failure = new AxiosError('rejected');
     failure.response = {

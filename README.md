@@ -305,6 +305,22 @@ Todos los errores responden con la misma forma:
                                  DECLINED/ERROR/VOIDED: libera las unidades y cancela la entrega
 ```
 
+### Tarjetas de prueba
+
+El ambiente sandbox de la pasarela **solo tokeniza estos números**; cualquier otro se rechaza
+con `El número de tarjeta usado no es aceptado en el ambiente de pruebas`:
+
+| Número | Marca |
+| --- | --- |
+| `4242 4242 4242 4242` | VISA |
+| `4111 1111 1111 1111` | VISA |
+
+Cualquier fecha de expiración futura y cualquier CVC de 3 dígitos sirven.
+
+La detección de marca del formulario sí reconoce Mastercard (y muestra su logo), pero el
+sandbox no acepta ninguna tarjeta Mastercard de prueba, así que el pago no puede completarse
+con una.
+
 ### Por qué se reserva el stock
 
 Entre el paso 1 y el 4 hay una llamada de red que no es instantánea. Sin reserva, dos compradores
