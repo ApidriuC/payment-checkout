@@ -10,6 +10,21 @@ variable "aws_region" {
   default     = "us-east-1"
 }
 
+variable "lambda_url_auth_type" {
+  description = <<-EOT
+    Autorización de la Lambda Function URL. AWS_IAM es lo deseable: la URL solo
+    acepta peticiones firmadas por CloudFront. NONE la deja accesible por su URL
+    directa y solo debería usarse para diagnosticar.
+  EOT
+  type        = string
+  default     = "AWS_IAM"
+
+  validation {
+    condition     = contains(["AWS_IAM", "NONE"], var.lambda_url_auth_type)
+    error_message = "Debe ser AWS_IAM o NONE."
+  }
+}
+
 variable "cors_origins" {
   description = <<-EOT
     Orígenes permitidos por CORS, separados por coma. Vacío por defecto: el SPA y la

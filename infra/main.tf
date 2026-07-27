@@ -30,7 +30,7 @@ locals {
 }
 
 # ---------------------------------------------------------------------------
-# API — Lambda con Function URL
+# API — Lambda tras API Gateway
 # ---------------------------------------------------------------------------
 
 data "archive_file" "api" {
@@ -101,20 +101,46 @@ resource "aws_lambda_function" "api" {
   depends_on = [aws_iam_role_policy_attachment.api_logs, aws_cloudwatch_log_group.api]
 }
 
-# AWS_IAM en vez de NONE: la URL solo responde a peticiones firmadas por CloudFront,
-# así nadie puede saltarse la distribución y llamar la Lambda directamente.
-resource "aws_lambda_function_url" "api" {
-  function_name      = aws_lambda_function.api.function_name
-  authorization_type = "AWS_IAM"
+# API Gateway HTTP API como puerta de entrada a la Lambda. Se prefirió sobre una
+# Function URL porque el proxy desde CloudFront no necesita firmar cada petición
+# con SigV4; el free tier cubre 1M de peticiones mensuales.
+resource "aws_apigatewayv2_api" "api" {
+  name                         = "${local.name}-api"
+  protocol_type                = "HTTP"
+  disable_execute_api_endpoint = false
 }
 
-resource "aws_lambda_permission" "cloudfront" {
-  statement_id           = "AllowCloudFrontInvoke"
-  action                 = "lambda:InvokeFunctionUrl"
-  function_name          = aws_lambda_function.api.function_name
-  principal              = "cloudfront.amazonaws.com"
-  source_arn             = aws_cloudfront_distribution.app.arn
-  function_url_auth_type = "AWS_IAM"
+resource "aws_apigatewayv2_integration" "api" {
+  api_id                 = aws_apigatewayv2_api.api.id
+  integration_type       = "AWS_PROXY"
+  integration_uri        = aws_lambda_function.api.invoke_arn
+  payload_format_version = "2.0"
+  timeout_milliseconds   = var.lambda_timeout_seconds * 1000
+}
+
+resource "aws_apigatewayv2_route" "proxy" {
+  api_id    = aws_apigatewayv2_api.api.id
+  route_key = "$default"
+  target    = "integrations/${aws_apigatewayv2_integration.api.id}"
+}
+
+resource "aws_apigatewayv2_stage" "default" {
+  api_id      = aws_apigatewayv2_api.api.id
+  name        = "$default"
+  auto_deploy = true
+
+  default_route_settings {
+    throttling_burst_limit = 200
+    throttling_rate_limit  = 100
+  }
+}
+
+resource "aws_lambda_permission" "api_gateway" {
+  statement_id  = "AllowApiGatewayInvoke"
+  action        = "lambda:InvokeFunction"
+  function_name = aws_lambda_function.api.function_name
+  principal     = "apigateway.amazonaws.com"
+  source_arn    = "${aws_apigatewayv2_api.api.execution_arn}/*/*"
 }
 
 # ---------------------------------------------------------------------------
@@ -177,13 +203,6 @@ resource "aws_cloudfront_origin_access_control" "spa" {
   signing_protocol                  = "sigv4"
 }
 
-resource "aws_cloudfront_origin_access_control" "api" {
-  name                              = "${local.name}-api"
-  origin_access_control_origin_type = "lambda"
-  signing_behavior                  = "always"
-  signing_protocol                  = "sigv4"
-}
-
 data "aws_cloudfront_cache_policy" "optimized" {
   name = "Managed-CachingOptimized"
 }
@@ -192,8 +211,8 @@ data "aws_cloudfront_cache_policy" "disabled" {
   name = "Managed-CachingDisabled"
 }
 
-# Reenvía todas las cabeceras del visitante menos Host: la Lambda Function URL
-# exige que Host siga siendo el suyo para validar la firma SigV4.
+# Reenvía todas las cabeceras del visitante menos Host: API Gateway necesita
+# recibir su propio Host para enrutar la petición.
 data "aws_cloudfront_origin_request_policy" "all_viewer_except_host" {
   name = "Managed-AllViewerExceptHostHeader"
 }
@@ -241,6 +260,14 @@ resource "aws_cloudfront_response_headers_policy" "security" {
   }
 }
 
+resource "aws_cloudfront_function" "spa_router" {
+  name    = "${local.name}-spa-router"
+  runtime = "cloudfront-js-2.0"
+  comment = "Reescribe las rutas del SPA a index.html"
+  publish = true
+  code    = file("${path.module}/spa-router.js")
+}
+
 resource "aws_cloudfront_distribution" "app" {
   enabled             = true
   is_ipv6_enabled     = true
@@ -255,9 +282,8 @@ resource "aws_cloudfront_distribution" "app" {
   }
 
   origin {
-    origin_id                = "api"
-    domain_name              = replace(replace(aws_lambda_function_url.api.function_url, "https://", ""), "/", "")
-    origin_access_control_id = aws_cloudfront_origin_access_control.api.id
+    origin_id   = "api"
+    domain_name = replace(aws_apigatewayv2_api.api.api_endpoint, "https://", "")
 
     custom_origin_config {
       http_port              = 80
@@ -275,8 +301,16 @@ resource "aws_cloudfront_distribution" "app" {
     cache_policy_id            = data.aws_cloudfront_cache_policy.optimized.id
     response_headers_policy_id = aws_cloudfront_response_headers_policy.security.id
     compress                   = true
+
+    function_association {
+      event_type   = "viewer-request"
+      function_arn = aws_cloudfront_function.spa_router.arn
+    }
   }
 
+  # compress queda apagado a propósito: CloudFront reescribe Accept-Encoding
+  # después de firmar la petición con SigV4, lo que invalida la firma que la
+  # Lambda Function URL valida y devuelve 403.
   ordered_cache_behavior {
     path_pattern               = "/api/*"
     target_origin_id           = "api"
@@ -286,7 +320,7 @@ resource "aws_cloudfront_distribution" "app" {
     cache_policy_id            = data.aws_cloudfront_cache_policy.disabled.id
     origin_request_policy_id   = data.aws_cloudfront_origin_request_policy.all_viewer_except_host.id
     response_headers_policy_id = aws_cloudfront_response_headers_policy.security.id
-    compress                   = true
+    compress                   = false
   }
 
   # Solo la especificación OpenAPI viene de la Lambda. La interfaz de Swagger es
@@ -299,23 +333,7 @@ resource "aws_cloudfront_distribution" "app" {
     cached_methods           = ["GET", "HEAD"]
     cache_policy_id          = data.aws_cloudfront_cache_policy.disabled.id
     origin_request_policy_id = data.aws_cloudfront_origin_request_policy.all_viewer_except_host.id
-    compress                 = true
-  }
-
-  # El SPA enruta en el cliente: cualquier ruta desconocida devuelve index.html
-  # para que un refresh en /checkout o /result/:ref no dé 404.
-  custom_error_response {
-    error_code            = 403
-    response_code         = 200
-    response_page_path    = "/index.html"
-    error_caching_min_ttl = 0
-  }
-
-  custom_error_response {
-    error_code            = 404
-    response_code         = 200
-    response_page_path    = "/index.html"
-    error_caching_min_ttl = 0
+    compress                 = false
   }
 
   restrictions {
