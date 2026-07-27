@@ -28,6 +28,11 @@ export class ApiError extends Error {
 }
 
 export const toApiError = (cause: unknown): ApiError => {
+  // Ya mapeado por una capa anterior: volver a mapearlo perdería el motivo real.
+  if (cause instanceof ApiError) {
+    return cause;
+  }
+
   if (isAxiosError(cause)) {
     const body = cause.response?.data as ApiErrorBody | undefined;
 

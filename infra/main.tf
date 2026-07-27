@@ -27,6 +27,13 @@ locals {
   name        = var.project
   bucket_name = "${var.project}-spa-${random_id.suffix.hex}"
   lambda_zip  = "${path.module}/.build/api.zip"
+
+  # Para CSP hace falta solo el origen. Una fuente con path que no termina en "/"
+  # exige coincidencia exacta, así que dejar ".../v1" bloquearía /v1/tokens/cards.
+  payment_gateway_origin = join("//", [
+    split("//", var.payment_gateway_base_url)[0],
+    split("/", split("//", var.payment_gateway_base_url)[1])[0],
+  ])
 }
 
 # ---------------------------------------------------------------------------
@@ -250,7 +257,7 @@ resource "aws_cloudfront_response_headers_policy" "security" {
         "img-src 'self' data:",
         "style-src 'self' 'unsafe-inline'",
         "script-src 'self'",
-        "connect-src 'self' ${var.payment_gateway_base_url}",
+        "connect-src 'self' ${local.payment_gateway_origin}",
         "frame-ancestors 'none'",
         "base-uri 'self'",
         "form-action 'self'",

@@ -66,6 +66,20 @@ describe('toApiError', () => {
     expect(toApiError(axiosFailure(500, '<html>oops</html>')).code).toBe('NETWORK_ERROR');
   });
 
+  it('returns an already mapped error untouched', () => {
+    const original = new ApiError('INVALID_CARD', 'La tarjeta fue rechazada.', 422);
+
+    expect(toApiError(original)).toBe(original);
+  });
+
+  it('keeps the reason when the error crosses two layers', () => {
+    const fromGateway = toApiError(
+      axiosFailure(422, { statusCode: 422, code: 'INVALID_CARD', message: 'Tarjeta inválida.' }),
+    );
+
+    expect(toApiError(fromGateway).message).toBe('Tarjeta inválida.');
+  });
+
   it('falls back for a non-axios failure', () => {
     const error = toApiError(new Error('boom'));
 
