@@ -405,13 +405,59 @@ de dominio a status codes, y el flujo completo del checkout en el SPA.
 
 ## Despliegue
 
-> Pendiente. Esta sección se completará con las URLs del SPA y de la API una vez desplegados.
-
 | Recurso | URL |
 | --- | --- |
-| SPA | _pendiente_ |
-| API | _pendiente_ |
-| Swagger | _pendiente_ |
+| **Aplicación** | https://ddmmiyylj5c6d.cloudfront.net |
+| **API** | https://ddmmiyylj5c6d.cloudfront.net/api/v1 |
+| **Swagger** | https://ddmmiyylj5c6d.cloudfront.net/docs |
+| OpenAPI (JSON) | https://ddmmiyylj5c6d.cloudfront.net/docs-json |
+
+Todo vive detrás de **un solo dominio de CloudFront**, así que el SPA y la API comparten
+origen y el navegador nunca hace una petición cross-origin.
+
+```
+CloudFront (HTTPS, security headers)
+├── /                → S3 (SPA, privado, solo accesible vía OAC)
+├── /docs            → S3 (Swagger UI estático, sin arranque en frío)
+├── /api/*           → API Gateway → Lambda (NestJS)
+└── /docs-json       → API Gateway → Lambda (especificación OpenAPI)
+```
+
+### Infraestructura como código
+
+Todo está en [infra/](infra/) con **Terraform**: bucket S3 privado con Origin Access Control,
+distribución de CloudFront con política de security headers, una CloudFront Function que
+resuelve el enrutado del SPA, API Gateway HTTP API y la Lambda con su rol e IAM mínimo
+(solo escritura de logs).
+
+```bash
+cd infra
+cp terraform.tfvars.example terraform.tfvars   # completar con los valores reales
+terraform init
+terraform apply
+```
+
+Y el despliegue completo (compila, aplica, sube el SPA e invalida la caché):
+
+```powershell
+.\infra\deploy.ps1
+```
+
+Para borrar todo: `terraform destroy`.
+
+### Notas del despliegue
+
+- **La Lambda no viaja con `node_modules`.** El bundle se arma con esbuild sobre la salida de
+  `tsc` — no sobre las fuentes — porque esbuild no implementa `emitDecoratorMetadata` y sin esa
+  metadata NestJS no puede resolver las dependencias que infiere de los tipos. El driver `pg`
+  sí viaja como paquete real: TypeORM lo carga con un `require` dinámico que el bundler no
+  puede seguir.
+- **El health check no usa `@nestjs/terminus`.** Terminus carga sus indicadores con `require`
+  dinámicos que no sobreviven al bundle, así que la comprobación de base de datos se hace
+  directamente con un `SELECT 1` sobre el `DataSource` inyectado.
+- **La API se expone por API Gateway y no por una Lambda Function URL.** Con Function URL el
+  proxy desde CloudFront debe firmar cada petición con SigV4, lo que resultó frágil de operar;
+  API Gateway evita esa complejidad y entra en el free tier.
 
 ## Licencia
 
