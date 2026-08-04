@@ -26,9 +26,20 @@ no prospera.
 | --- | --- |
 | Frontend | React 19 + TypeScript + Vite + **Redux Toolkit** + redux-persist + React Router |
 | Backend | **NestJS 11** + TypeScript + TypeORM |
-| Base de datos | PostgreSQL (Neon) |
+| Base de datos | **PostgreSQL** gestionado en [Neon](https://neon.tech) |
 | Tests | **Jest** en ambos workspaces (+ Testing Library en el SPA) |
 | Documentación de API | Swagger / OpenAPI |
+| Infraestructura | **Terraform** sobre AWS (S3, CloudFront, Lambda, API Gateway) |
+
+### Por qué Neon
+
+Se eligió [Neon](https://neon.tech) como proveedor de PostgreSQL en lugar de RDS por tres
+razones prácticas: es **PostgreSQL estándar** (misma cadena de conexión, mismas migraciones,
+sin lock-in), su free tier no exige tarjeta ni caduca a los 12 meses como el de AWS, y al ser
+serverless no hay una instancia encendida generando costo mientras el proyecto está inactivo.
+
+La API no sabe que habla con Neon: solo recibe una `DATABASE_URL`, así que migrar a RDS o a
+cualquier PostgreSQL implicaría únicamente cambiar esa variable.
 
 ### Estructura del monorepo
 
@@ -421,15 +432,23 @@ de dominio a status codes, y el flujo completo del checkout en el SPA.
 
 ## Despliegue
 
+> [!NOTE]
+> **El entorno desplegado fue dado de baja.** La aplicación estuvo publicada en AWS durante el
+> período de evaluación; una vez concluido, la infraestructura se eliminó con `terraform destroy`
+> para no incurrir en costos. El código de infraestructura sigue versionado en [infra/](infra/):
+> un `terraform apply` reconstruye el entorno completo.
+
+Las URLs que estuvieron activas:
+
 | Recurso | URL |
 | --- | --- |
-| **Aplicación** | https://ddmmiyylj5c6d.cloudfront.net |
-| **API** | https://ddmmiyylj5c6d.cloudfront.net/api/v1 |
-| **Swagger** | https://ddmmiyylj5c6d.cloudfront.net/docs |
-| OpenAPI (JSON) | https://ddmmiyylj5c6d.cloudfront.net/docs-json |
+| Aplicación | `https://ddmmiyylj5c6d.cloudfront.net` |
+| API | `https://ddmmiyylj5c6d.cloudfront.net/api/v1` |
+| Swagger | `https://ddmmiyylj5c6d.cloudfront.net/docs` |
+| OpenAPI (JSON) | `https://ddmmiyylj5c6d.cloudfront.net/docs-json` |
 
-Todo vive detrás de **un solo dominio de CloudFront**, así que el SPA y la API comparten
-origen y el navegador nunca hace una petición cross-origin.
+Todo vivía detrás de **un solo dominio de CloudFront**, así que el SPA y la API compartían
+origen y el navegador nunca hacía una petición cross-origin.
 
 ```
 CloudFront (HTTPS, security headers)
